@@ -880,6 +880,11 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    * Sets ability to open fullscreen videos on Android devices.
    */
   allowsFullscreenVideo?: boolean;
+
+  /**
+   * Allows scrolling in ScrollView component.
+   */
+  allowsScrollingInScrollView?: boolean;
 }
 
 export interface WebViewSharedProps extends ViewProps {

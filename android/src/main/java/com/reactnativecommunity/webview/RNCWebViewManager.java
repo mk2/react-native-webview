@@ -17,6 +17,7 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -149,6 +150,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
   protected boolean mAllowsFullscreenVideo = false;
   protected @Nullable String mUserAgent = null;
   protected @Nullable String mUserAgentWithApplicationName = null;
+  protected static boolean mAllowScrollingInScrollView = false;
 
   public RNCWebViewManager() {
     mWebViewConfig = new WebViewConfig() {
@@ -594,6 +596,12 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
   public void setOnScroll(WebView view, boolean hasScrollEvent) {
     ((RNCWebView) view).setHasScrollEvent(hasScrollEvent);
   }
+
+  @ReactProp(name = "allowsScrollingInScrollView")
+  public void allowsScrollingInScrollView(WebView view, boolean allowsScrollingInScrollView) {
+    mAllowScrollingInScrollView = allowsScrollingInScrollView;
+  }
+
 
   @Override
   protected void addEventEmitters(ThemedReactContext reactContext, WebView view) {
@@ -1255,6 +1263,26 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
 
     public void setHasScrollEvent(boolean hasScrollEvent) {
       this.hasScrollEvent = hasScrollEvent;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+      if (!mAllowScrollingInScrollView) {
+        return super.onTouchEvent(event);
+      }
+
+      // Allow scrolling inside ScrollView
+      if (event.findPointerIndex(0) == -1) {
+        return super.onTouchEvent(event);
+      }
+
+      if (event.getPointerCount() >= 1) {
+        requestDisallowInterceptTouchEvent(true);
+      } else {
+        requestDisallowInterceptTouchEvent(false);
+      }
+
+      return super.onTouchEvent(event);
     }
 
     @Override
